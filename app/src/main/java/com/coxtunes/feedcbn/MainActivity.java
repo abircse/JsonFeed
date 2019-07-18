@@ -26,8 +26,8 @@ import org.json.JSONObject;
 public class MainActivity extends AppCompatActivity {
 
     private String url = "http://coxsbazarnews.com/feed/json";
+    private String myblogurl = "http://thisisabir.com/feed/json";
     private TextView textView;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,8 +35,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         textView = findViewById(R.id.textview);
-
-        loadcbnheadline();
+        //loadcbnheadline();
+        loadtechblogheadline();
     }
 
     private void loadcbnheadline() {
@@ -45,7 +45,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResponse(JSONObject response)
             {
-
                 try
                 {
                     JSONArray jsonArray = response.getJSONArray("items");
@@ -53,13 +52,16 @@ public class MainActivity extends AppCompatActivity {
                     {
                         JSONObject object = jsonArray.getJSONObject(i);
                         String title = object.getString("title");
-                        textView.append(title+" || ");
+
+                        JSONObject authorobject = object.getJSONObject("author");
+                        String authorname = authorobject.getString("name");
+                        textView.append(title+"\n"+authorname+"\n\n");
+
                     }
 
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-
             }
 
             },new Response.ErrorListener() {
@@ -73,6 +75,45 @@ public class MainActivity extends AppCompatActivity {
         rQueue.add(objectRequest);
 
     }
+
+    private void loadtechblogheadline() {
+
+        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, myblogurl, null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response)
+            {
+                try
+                {
+                    JSONArray jsonArray = response.getJSONArray("items");
+                    for (int i = 0; i < jsonArray.length(); i++)
+                    {
+                        JSONObject object = jsonArray.getJSONObject(i);
+                        String title = object.getString("title");
+                        String datetime = object.getString("date_published");
+                        String modify = datetime.replace("T"," সময়ঃ ");
+                        JSONObject authorobject = object.getJSONObject("author");
+                        String authorname = authorobject.getString("name");
+                        textView.append(title+"\n"+authorname+"\n"+"তারিখঃ "+modify+"\n\n");
+
+                    }
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+        },new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+            }
+        });
+
+        RequestQueue rQueue = Volley.newRequestQueue(MainActivity.this);
+        rQueue.add(objectRequest);
+
+    }
+
 
 
 }
